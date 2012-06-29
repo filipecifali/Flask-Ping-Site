@@ -1,6 +1,7 @@
 __author__ = 'filipecifalistangler'
 
 from flask import Flask
+from flask import render_template
 import subprocess
 import telnetlib
 import urllib2
@@ -22,8 +23,8 @@ def ping(host):
     for line in output.stdout.readlines():
         o_filter = o_filter+line+"<br>"
 
-    return_msg = "Ping(4 times) to %s <br>" % host + "<br>" + o_filter
-    return return_msg
+    return_data = "Ping(4 times) to %s <br>" % host + "<br>" + o_filter
+    return render_template('center.html', return_data=return_data)
 
 @app.route('/traceroute/<host>')
 @app.route('/tracert/<host>', alias=True)
@@ -68,6 +69,7 @@ def reverse(host):
 
 @app.route('/contry/<host>')
 def contry_by_ip(host):
+    ''' TODO: Use the IP to check with some geo-location service or even create a database w/ help of whois '''
     return 'Contry %s' % host
 
 @app.route('/nmap/<host>')
@@ -82,6 +84,7 @@ def nmap(host):
 
 @app.route('/url-status/<host>')
 def site_status(host):
+    ''' TODO: Use a fake browser to get the headers and have a 200 returned if OK, else, print the error too. '''
     output = urllib2.Request("%s" % host, headers = headers)
     o_response = urllib2.urlopen(output)
     o_filter = o_response.get_headers()
@@ -89,32 +92,39 @@ def site_status(host):
 
 @app.route('/encoding/<host>')
 def encoding(host):
+    ''' TODO: Find a way to check encoding from a remote file '''
     return 'Encoding %s' % host
 
 @app.route('/email-check/<host>/<user>')
 def email_check(host,user):
+    ''' TODO: Use smtplib to send a test e-mail or even to check if it autenticates '''
     return 'Email Check %s $s' % host % user
 
 @app.route('/proxy/<host>/<port>')
 def proxy(host, port):
+    ''' TODO: Check if a proxy is runnig and for what can be used ( tunnel, etc ) '''
     return 'Proxy at %s %s' % host % port
 
 @app.route('/telnet/<host>/<int:port>')
 def telnet(host,port):
+    ''' TODO: Use telnetlib to test a port and maybe return the message received '''
     return 'Telnet to %s %s returned: ' % host % port
 
 @app.route('/port-check/<host>/<int:port>')
 def port_check(host, port):
+    ''' TODO: Less precise telnet test, maybe a nmap like just to see if the port is opened or closed '''
     if port == "":
         port = 23
 
     tn = telnetlib.Telnet(host,port, 10)
     if tn.open(host,port, 10):
-        return_msg = "Telnet(10 sec timeout) to %s <br>" % host + "<br> OK"
+        return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> OK"
         tn.close()
     else:
-        return_msg = "Telnet(10 sec timeout) to %s <br>" % host + "<br> NOT OK"
-    return return_msg
+        return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> NOT OK"
+    return return_data
+
+''' TODO: Find a better way to handle errors, since web provides more errors and seems to much work to config all ( or almost all ) '''
 
 @app.errorhandler(403)
 def page_not_found(error):

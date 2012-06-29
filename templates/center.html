@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Ping{% endblock %}
+
+{% block content %}
+{% if return_data %}
+    <h2>Result:</h2>
+    <br><h3>{{ return_data }}</h3>
+{% else %}
+    <h2>Hello, since no Data IN! No data OUT!</h2>
+    <br><h4>Check your URL cause something seems fishy! :/</h4>
+{% endif %}
+{% endblock %}
