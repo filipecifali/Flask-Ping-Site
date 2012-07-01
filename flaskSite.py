@@ -18,122 +18,181 @@ def top_menu():
 def index():
     return render_template('center.html', return_data='Home Page')
 
+@app.route('/ping/')
 @app.route('/ping/<host>')
 @app.route('/pong/<host>', alias=True)
-def ping(host):
-    cmd = "ping -c 4 %s" % host
-    output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    o_filter = ""
-    for line in output.stdout.readlines():
-        o_filter = o_filter+line
+def ping(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        cmd = "ping -c 4 %s" % host
+        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        o_filter = ""
+        for line in output.stdout.readlines():
+            o_filter = o_filter+line
 
-    return_data = "Ping(4 times) to %s" % host + " " +  o_filter
-    return render_template('center.html', return_data=return_data)
+        return_data = "Ping(4 times) to %s" % host + " " +  o_filter
+        return render_template('center.html', return_data=return_data)
 
+@app.route('/tracert/')
+@app.route('/traceroute/')
 @app.route('/traceroute/<host>')
 @app.route('/tracert/<host>', alias=True)
-def traceroute(host):
-    cmd = "traceroute -m 10 %s" % host
-    output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    o_filter = ""
-    for line in output.stdout.readlines():
-        o_filter = o_filter + line + "<br>"
+def traceroute(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        cmd = "traceroute -m 10 %s" % host
+        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        o_filter = ""
+        for line in output.stdout.readlines():
+            o_filter = o_filter + line + "<br>"
 
-    return_data = "Traceroute(10 max hopes) to %s <br>" % host + "<br>" + o_filter
-    return render_template('center.html', return_data=return_data)
+        return_data = "Traceroute(10 max hopes) to %s" % host + " " + o_filter
+        return render_template('center.html', return_data=return_data)
 
+
+@app.route('/dns-lookup/')
+@app.route('/lookup/')
 @app.route('/dns-lookup/<host>')
 @app.route('/lookup/<host>', alias=True)
-def dns_lookup(host):
-    cmd = "nslookup %s 8.8.8.8" % host
-    output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    o_filter = ""
-    for line in output.stdout.readlines():
-        o_filter = o_filter + line + "<br>"
+def dns_lookup(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        cmd = "nslookup %s 8.8.8.8" % host
+        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        o_filter = ""
+        for line in output.stdout.readlines():
+            o_filter = o_filter + line + "<br>"
 
-    return_data = "Nslookup(server 8.8.8.8) to %s <br>" % host + "<br>" + o_filter
-    return render_template('center.html', return_data=return_data)
+        return_data = "Nslookup(server 8.8.8.8) to %s <br>" % host + "<br>" + o_filter
+        return render_template('center.html', return_data=return_data)
 
+@app.route('/whois/')
 @app.route('/whois/<host>')
-def whois(host):
-    cmd = "whois %s" % host
-    output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    o_filter = ""
-    for line in output.stdout.readlines():
-        o_filter = o_filter + line + "<br>"
+def whois(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        cmd = "whois %s" % host
+        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        o_filter = ""
+        for line in output.stdout.readlines():
+            o_filter = o_filter + line + "<br>"
 
-    return_data = "Whois to %s <br>" % host + "<br>" + o_filter
-    return render_template('center.html', return_data=return_data)
+        return_data = "Whois to %s <br>" % host + "<br>" + o_filter
+        return render_template('center.html', return_data=return_data)
 
+@app.route('/reverse/')
 @app.route('/reverse/<host>')
-def reverse(host):
-    cmd = "host %s" % host
-    output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    o_filter = ""
-    for line in output.stdout.readlines():
-        o_filter = o_filter + line + "<br>"
+def reverse(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        cmd = "host %s" % host
+        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        o_filter = ""
+        for line in output.stdout.readlines():
+            o_filter = o_filter + line + "<br>"
 
-    return_data = "Host to %s <br>" % host + "<br>" + o_filter
-    return render_template('center.html', return_data=return_data)
+        return_data = "Host to %s <br>" % host + "<br>" + o_filter
+        return render_template('center.html', return_data=return_data)
 
+@app.route('/country/')
 @app.route('/contry/<host>')
-def contry_by_ip(host):
-    ''' TODO: Use the IP to check with some geo-location service or even create a database w/ help of whois '''
-    return 'Contry %s' % host
+def contry_by_ip(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        ''' TODO: Use the IP to check with some geo-location service or even create a database w/ help of whois '''
+        return 'Contry %s' % host
 
+@app.route('/nmap/')
 @app.route('/nmap/<host>')
-def nmap(host):
-    cmd = "nmap %s" % host
-    output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-    o_filter = ""
-    for line in output.stdout.readlines():
-        o_filter = o_filter + line + "<br>"
+def nmap(host=None):
+    if host is None:
+        return render_template('center.html')
+    else:
+        cmd = "nmap %s" % host
+        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+        o_filter = ""
+        for line in output.stdout.readlines():
+            o_filter = o_filter + line + "<br>"
 
-    return_data = "Nmap to %s <br>" % host + "<br>" + o_filter
-    return render_template('center.html', return_data=return_data)
+        return_data = "Nmap to %s <br>" % host + "<br>" + o_filter
+        return render_template('center.html', return_data=return_data)
 
+@app.route('/url-status/')
+@app.route('/site-status')
 @app.route('/url-status/<host>')
 @app.route('/site-status/<host>', alias=True)
-def site_status(host):
-    ''' TODO: Use a fake browser to get the headers and have a 200 returned if OK, else, print the error too. '''
-    output = urllib2.Request("%s" % host, headers = headers)
-    o_response = urllib2.urlopen(output)
-    o_filter = o_response.get_headers()
-    return 'Url Status %s' % o_filter
-
-@app.route('/encoding/<host>')
-def encoding(host):
-    ''' TODO: Find a way to check encoding from a remote file '''
-    return 'Encoding %s' % host
-
-@app.route('/email-check/<host>/<user>')
-def email_check(host,user):
-    ''' TODO: Use smtplib to send a test e-mail or even to check if it autenticates '''
-    return 'Email Check %s $s' % host % user
-
-@app.route('/proxy/<host>/<port>')
-def proxy(host, port):
-    ''' TODO: Check if a proxy is runnig and for what can be used ( tunnel, etc ) '''
-    return 'Proxy at %s %s' % host % port
-
-@app.route('/telnet/<host>/<int:port>')
-def telnet(host,port):
-    ''' TODO: Use telnetlib to test a port and maybe return the message received '''
-    return 'Telnet to %s %s returned: ' % host % port
-
-@app.route('/port-check/<host>/<int:port>')
-def port_check(host, port):
-    ''' TODO: Less precise telnet test, maybe a nmap like just to see if the port is opened or closed '''
-    if port == "":
-        port = 23
-
-    tn = telnetlib.Telnet(host,port, 10)
-    if tn.open(host,port, 10):
-        return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> OK"
-        tn.close()
+def site_status(host=None):
+    if host is None:
+        return render_template('center.html')
     else:
-        return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> NOT OK"
-    return return_data
+        ''' TODO: Use a fake browser to get the headers and have a 200 returned if OK, else, print the error too. '''
+        output = urllib2.Request("%s" % host, headers = headers)
+        o_response = urllib2.urlopen(output)
+        o_filter = o_response.get_headers()
+        return 'Url Status %s' % o_filter
+
+@app.route('/encoding/')
+@app.route('/encoding/<host>')
+def encoding(host=None):
+    if host is None:
+        render_template('center.html')
+    else:
+        ''' TODO: Find a way to check encoding from a remote file '''
+        return_data = 'Encoding %s' % host
+        return render_template('center.html', return_data=return_data)
+
+@app.route('/email-check/')
+@app.route('/email-check/<host>/<user>')
+def email_check(host=None,user=None):
+    if host is None:
+        render_template('center.html')
+    else:
+        ''' TODO: Use smtplib to send a test e-mail or even to check if it autenticates '''
+        return_data = 'Email Check %s $s' % host % user
+        return render_template('center.html', return_data=return_data)
+@app.route('/proxy/')
+@app.route('/proxy/<host>/<port>')
+def proxy(host=None, port=None):
+    if host is None:
+        render_template('center.html')
+    else:
+        ''' TODO: Check if a proxy is runnig and for what can be used ( tunnel, etc ) '''
+        return_data = 'Proxy at %s %s' % host % port
+        return render_template('center.html', return_data=return_data)
+
+@app.route('/telnet')
+@app.route('/telnet/<host>/<int:port>')
+def telnet(host=None,port=None):
+    if host is None:
+        render_template('center.html')
+    else:
+        ''' TODO: Use telnetlib to test a port and maybe return the message received '''
+        return_data = 'Telnet to %s %s returned: ' % host % port
+        return render_template('center.html', return_data=return_data)
+
+@app.route('/port-check/')
+@app.route('/port-check/<host>/<int:port>')
+def port_check(host=None, port=None):
+    if host is None:
+        render_template('center.html')
+    else:
+        ''' TODO: Less precise telnet test, maybe a nmap like just to see if the port is opened or closed '''
+        if port == "":
+            port = 23
+
+        tn = telnetlib.Telnet(host,port, 10)
+        if tn.open(host,port, 10):
+            return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> OK"
+            tn.close()
+        else:
+            return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> NOT OK"
+        return return_data
 
 ''' TODO: Find a better way to handle errors, since web provides more errors and seems to much work to config all ( or almost all ) '''
 
