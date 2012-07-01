@@ -11,19 +11,23 @@ headers = { 'User-Agent' : user_agent }
 
 app = Flask(__name__)
 
+def top_menu():
+    pass
+
 @app.route('/')
 def index():
-    return 'Relou'
+    return render_template('center.html', return_data='Home Page')
 
 @app.route('/ping/<host>')
+@app.route('/pong/<host>', alias=True)
 def ping(host):
     cmd = "ping -c 4 %s" % host
     output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
     o_filter = ""
     for line in output.stdout.readlines():
-        o_filter = o_filter+line+"<br>"
+        o_filter = o_filter+line
 
-    return_data = "Ping(4 times) to %s <br>" % host + "<br>" + o_filter
+    return_data = "Ping(4 times) to %s" % host + " " +  o_filter
     return render_template('center.html', return_data=return_data)
 
 @app.route('/traceroute/<host>')
@@ -35,9 +39,11 @@ def traceroute(host):
     for line in output.stdout.readlines():
         o_filter = o_filter + line + "<br>"
 
-    return "Traceroute(10 max hopes) to %s <br>" % host + "<br>" + o_filter
+    return_data = "Traceroute(10 max hopes) to %s <br>" % host + "<br>" + o_filter
+    return render_template('center.html', return_data=return_data)
 
 @app.route('/dns-lookup/<host>')
+@app.route('/lookup/<host>', alias=True)
 def dns_lookup(host):
     cmd = "nslookup %s 8.8.8.8" % host
     output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
@@ -45,7 +51,8 @@ def dns_lookup(host):
     for line in output.stdout.readlines():
         o_filter = o_filter + line + "<br>"
 
-    return "Nslookup(server 8.8.8.8) to %s <br>" % host + "<br>" + o_filter
+    return_data = "Nslookup(server 8.8.8.8) to %s <br>" % host + "<br>" + o_filter
+    return render_template('center.html', return_data=return_data)
 
 @app.route('/whois/<host>')
 def whois(host):
@@ -55,7 +62,8 @@ def whois(host):
     for line in output.stdout.readlines():
         o_filter = o_filter + line + "<br>"
 
-    return "Whois to %s <br>" % host + "<br>" + o_filter
+    return_data = "Whois to %s <br>" % host + "<br>" + o_filter
+    return render_template('center.html', return_data=return_data)
 
 @app.route('/reverse/<host>')
 def reverse(host):
@@ -65,7 +73,8 @@ def reverse(host):
     for line in output.stdout.readlines():
         o_filter = o_filter + line + "<br>"
 
-    return "Host to %s <br>" % host + "<br>" + o_filter
+    return_data = "Host to %s <br>" % host + "<br>" + o_filter
+    return render_template('center.html', return_data=return_data)
 
 @app.route('/contry/<host>')
 def contry_by_ip(host):
@@ -80,9 +89,11 @@ def nmap(host):
     for line in output.stdout.readlines():
         o_filter = o_filter + line + "<br>"
 
-    return "Nmap to %s <br>" % host + "<br>" + o_filter
+    return_data = "Nmap to %s <br>" % host + "<br>" + o_filter
+    return render_template('center.html', return_data=return_data)
 
 @app.route('/url-status/<host>')
+@app.route('/site-status/<host>', alias=True)
 def site_status(host):
     ''' TODO: Use a fake browser to get the headers and have a 200 returned if OK, else, print the error too. '''
     output = urllib2.Request("%s" % host, headers = headers)
@@ -126,17 +137,22 @@ def port_check(host, port):
 
 ''' TODO: Find a better way to handle errors, since web provides more errors and seems to much work to config all ( or almost all ) '''
 
+@app.route('/about/')
+@app.route('/about-me/', alias=True)
+def about():
+    return render_template('center.html', return_data='This site is build w/ Flask and Python 2.7, helped w/ some modules, the source can be found at my github. Any suggestions? Just for and send a push.')
+
 @app.errorhandler(403)
 def page_not_found(error):
-    return 'Cannot do'
+    return render_template('center.html', return_data='Can\'t do that!' )
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return 'Not found'
+    return render_template('center.html', return_data='Nothing found here!')
 
 @app.errorhandler(500)
 def page_not_found(error):
-    return 'Outch!'
+    return render_template('center.html', return_data='Something smells strange!')
 
 if __name__ == '__main__':
     app.debug = True
