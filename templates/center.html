@@ -1,11 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Ping{% endblock %}
+{% block title %}Network-tool{% endblock %}
 
 {% block content %}
 {% if return_data %}
-    <h3>{{ return_data }}</h3>
+    <br>
+    <div id="content" align="center" style="width: 90% ; padding: 2px ; margin: 1px auto ; background-color: #F0F0F0">
+        {{ return_data }}
+    </div>
 {% else %}
-    <h3>Hello, since no Data IN! No data OUT!</h3>
-    <br><h4>Check your URL cause something seems fishy! :/</h4>
+    <br>
+    <div id="content" align="center" style="width: 90% ; padding: 2px ; margin: 1px auto ; background-color: #F0F0F0">
+        Hello, since no Data IN! No data OUT! Check your URL cause something smells fishy! :/
+    </div>
 {% endif %}
 {% endblock %}
