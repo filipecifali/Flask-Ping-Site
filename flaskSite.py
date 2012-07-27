@@ -14,6 +14,18 @@ app = Flask(__name__)
 def top_menu():
     pass
 
+def call_proc(cmd):
+    output = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    return output
+
+def filter_output(output, host):
+    o_filter = ""
+    for line in output.stdout.readlines():
+        o_filter = o_filter+line
+
+    return_data = "%s" % host + " " +  o_filter
+    return return_data
+
 @app.route('/')
 def index():
     return render_template('center.html', return_data='Home Page')
@@ -26,12 +38,8 @@ def ping(host=None):
         return render_template('center.html')
     else:
         cmd = "ping -c 4 %s" % host
-        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        o_filter = ""
-        for line in output.stdout.readlines():
-            o_filter = o_filter+line
-
-        return_data = "Ping(4 times) to %s" % host + " " +  o_filter
+        output = call_proc(cmd)
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/tracert/')
@@ -43,12 +51,8 @@ def traceroute(host=None):
         return render_template('center.html')
     else:
         cmd = "traceroute -m 10 %s" % host
-        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        o_filter = ""
-        for line in output.stdout.readlines():
-            o_filter = o_filter + line + "<br>"
-
-        return_data = "Traceroute(10 max hopes) to %s" % host + " " + o_filter
+        output = call_proc(cmd)
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 
@@ -61,12 +65,8 @@ def dns_lookup(host=None):
         return render_template('center.html')
     else:
         cmd = "nslookup %s 8.8.8.8" % host
-        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        o_filter = ""
-        for line in output.stdout.readlines():
-            o_filter = o_filter + line + "<br>"
-
-        return_data = "Nslookup(server 8.8.8.8) to %s <br>" % host + "<br>" + o_filter
+        output = call_proc(cmd)
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/whois/')
@@ -76,12 +76,8 @@ def whois(host=None):
         return render_template('center.html')
     else:
         cmd = "whois %s" % host
-        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        o_filter = ""
-        for line in output.stdout.readlines():
-            o_filter = o_filter + line + "<br>"
-
-        return_data = "Whois to %s <br>" % host + "<br>" + o_filter
+        output = call_proc(cmd)
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/reverse/')
@@ -91,12 +87,8 @@ def reverse(host=None):
         return render_template('center.html')
     else:
         cmd = "host %s" % host
-        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        o_filter = ""
-        for line in output.stdout.readlines():
-            o_filter = o_filter + line + "<br>"
-
-        return_data = "Host to %s <br>" % host + "<br>" + o_filter
+        output = call_proc(cmd)
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/country/')
@@ -115,12 +107,8 @@ def nmap(host=None):
         return render_template('center.html')
     else:
         cmd = "nmap %s" % host
-        output = subprocess.Popen(cmd, shell=True, stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
-        o_filter = ""
-        for line in output.stdout.readlines():
-            o_filter = o_filter + line + "<br>"
-
-        return_data = "Nmap to %s <br>" % host + "<br>" + o_filter
+        output = call_proc(cmd)
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/url-status/')
@@ -144,7 +132,7 @@ def encoding(host=None):
         render_template('center.html')
     else:
         ''' TODO: Find a way to check encoding from a remote file '''
-        return_data = 'Encoding %s' % host
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/email-check/')
@@ -154,8 +142,9 @@ def email_check(host=None,user=None):
         render_template('center.html')
     else:
         ''' TODO: Use smtplib to send a test e-mail or even to check if it autenticates '''
-        return_data = 'Email Check %s $s' % host % user
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
+
 @app.route('/proxy/')
 @app.route('/proxy/<host>/<port>')
 def proxy(host=None, port=None):
@@ -163,7 +152,7 @@ def proxy(host=None, port=None):
         render_template('center.html')
     else:
         ''' TODO: Check if a proxy is runnig and for what can be used ( tunnel, etc ) '''
-        return_data = 'Proxy at %s %s' % host % port
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/telnet')
@@ -173,7 +162,7 @@ def telnet(host=None,port=None):
         render_template('center.html')
     else:
         ''' TODO: Use telnetlib to test a port and maybe return the message received '''
-        return_data = 'Telnet to %s %s returned: ' % host % port
+        return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
 @app.route('/port-check/')
@@ -188,10 +177,10 @@ def port_check(host=None, port=None):
 
         tn = telnetlib.Telnet(host,port, 10)
         if tn.open(host,port, 10):
-            return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> OK"
+            return_data = filter_output(output, host)
             tn.close()
         else:
-            return_data = "Telnet(10 sec timeout) to %s <br>" % host + "<br> NOT OK"
+            return_data = filter_output(output, host)
         return return_data
 
 ''' TODO: Find a better way to handle errors, since web provides more errors and seems to much work to config all ( or almost all ) '''
