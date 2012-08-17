@@ -20,7 +20,7 @@ def call_proc(cmd):
 
 def filter_output(output, host):
     o_filter = ""
-    for line in output.stdout.readlines():
+    for line in output.stdout:
         o_filter = o_filter+line
 
     return_data = "%s" % host + " " +  o_filter
@@ -81,7 +81,9 @@ def whois(host=None):
         return render_template('center.html', return_data=return_data)
 
 @app.route('/reverse/')
+@app.route('/reverse-dns/')
 @app.route('/reverse/<host>')
+@app.route('/reverse-dns/<host>', alias=True)
 def reverse(host=None):
     if host is None:
         return render_template('center.html')
@@ -112,7 +114,7 @@ def nmap(host=None):
         return render_template('center.html', return_data=return_data)
 
 @app.route('/url-status/')
-@app.route('/site-status')
+@app.route('/site-status/')
 @app.route('/url-status/<host>')
 @app.route('/site-status/<host>', alias=True)
 def site_status(host=None):
@@ -151,11 +153,14 @@ def proxy(host=None, port=None):
     if host is None:
         render_template('center.html')
     else:
-        ''' TODO: Check if a proxy is runnig and for what can be used ( tunnel, etc ) '''
+        '''
+        TODO: Check if a proxy is runnig and for what can be used ( tunnel, etc )
+        http headers reveal the proxy user ('proxy via something')
+        '''
         return_data = filter_output(output, host)
         return render_template('center.html', return_data=return_data)
 
-@app.route('/telnet')
+@app.route('/telnet/')
 @app.route('/telnet/<host>/<int:port>')
 def telnet(host=None,port=None):
     if host is None:
@@ -175,8 +180,8 @@ def port_check(host=None, port=None):
         if port == "":
             port = 23
 
-        tn = telnetlib.Telnet(host,port, 10)
-        if tn.open(host,port, 10):
+        tn = telnetlib.Telnet(host,port, 5)
+        if tn.open(host,port, 5):
             return_data = filter_output(output, host)
             tn.close()
         else:
@@ -188,18 +193,18 @@ def port_check(host=None, port=None):
 @app.route('/about/')
 @app.route('/about-me/', alias=True)
 def about():
-    return render_template('center.html', return_data='This site is build w/ Flask and Python 2.7, helped w/ some modules, the source can be found at my github. Any suggestions? Just for and send a push.')
+    return render_template('center.html', return_data='This site is build w/ Flask and Python 2.7, helped w/ some modules, the source can be found at my github. Any suggestions? Just do it and send a push.')
 
 @app.errorhandler(403)
-def page_not_found(error):
+def forbidden():
     return render_template('center.html', return_data='Can\'t do that!' )
 
 @app.errorhandler(404)
-def page_not_found(error):
+def page_not_found():
     return render_template('center.html', return_data='Nothing found here!')
 
 @app.errorhandler(500)
-def page_not_found(error):
+def internal_server():
     return render_template('center.html', return_data='Something smells strange!')
 
 if __name__ == '__main__':
